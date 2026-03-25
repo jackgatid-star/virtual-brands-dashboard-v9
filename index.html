@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b1120">
+<title>Virtual Brands — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#06090f;--bg2:#0a0f1a;--bg3:#141c2b;--card:#0c1220;--card2:#101828;--border:rgba(194,175,132,0.06);--border2:rgba(194,175,132,0.12);--text:#e8e4dc;--text2:#9ca3b4;--text3:#5a6274;--acc:#1a3a6e;--acc2:#1e4d8c;--acc3:#2563b0;--green:#c2af84;--red:#c45c5c;--warn:#c2af84;--font:'DM Sans',sans-serif;--mono:'IBM Plex Mono',monospace;--safe-b:env(safe-area-inset-bottom,0px);--nav:58px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 0%,rgba(194,175,132,0.04),transparent 60%);pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}
+/* ── TOP BAR ── */
+.top{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));background:rgba(8,12,20,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-ic{width:28px;height:28px;background:linear-gradient(135deg,#1a3a6e,#c2af84);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(26,58,110,0.3)}
+.logo-t{font-size:14px;font-weight:700;letter-spacing:-0.3px}
+.top-r{display:flex;align-items:center;gap:7px}
+.dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+.top-date{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.rbtn{background:none;border:1px solid var(--border2);border-radius:5px;color:var(--text3);font-size:9px;padding:2px 7px;cursor:pointer;font-family:var(--mono)}
+/* ── DATE PICKER BAR ── */
+.datebar{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.datebar::-webkit-scrollbar{display:none}
+.dbtn{padding:5px 12px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--card);color:var(--text3);font-family:var(--font);white-space:nowrap;flex-shrink:0;transition:all 0.15s}
+.dbtn.on{background:#1a3a6e;border-color:#c2af84;color:#e8e4dc}
+.dbtn:active{transform:scale(0.96)}
+.dinput{background:var(--card);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:11px;padding:4px 8px;width:110px;outline:none}
+.dinput:focus{border-color:var(--acc)}
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav) + var(--safe-b) + 12px);scroll-behavior:smooth;scrollbar-width:none}.main::-webkit-scrollbar{display:none}
+.page{display:none}.page.active{display:block}
+/* ── HERO ── */
+.hero{margin:10px 12px;padding:18px;background:linear-gradient(145deg,#0a0f1a,var(--card2));border:1px solid rgba(26,58,110,0.08);border-radius:14px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-30%;right:-15%;width:180px;height:180px;background:radial-gradient(circle,rgba(194,175,132,0.06),transparent 65%);pointer-events:none}
+.hero-hi{font-size:20px;font-weight:700;letter-spacing:-0.4px}.hero-hi span{color:var(--acc)}
+.hero-sub{font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--mono)}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.hstat{background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:9px;padding:9px 10px}
+.hstat-v{font-size:17px;font-weight:700;letter-spacing:-0.4px;color:var(--acc)}.hstat-l{font-size:8px;color:var(--text3);font-family:var(--mono);letter-spacing:0.7px;text-transform:uppercase;margin-top:2px}
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 14px;margin:0 12px 10px}
+.card-h{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.badge{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:4px;background:rgba(26,58,110,0.08);color:var(--acc)}
+.chart-w canvas{display:block;width:100%!important}
+/* ── KPI SCROLL ── */
+.kpis{display:flex;gap:8px;padding:0 12px 10px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.kpis::-webkit-scrollbar{display:none}
+.kpi{min-width:120px;flex-shrink:0;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#1a3a6e,#c2af84);border-radius:10px 10px 0 0;opacity:0.5}
+.kpi-l{font-size:8px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:5px}
+.kpi-v{font-size:17px;font-weight:700;letter-spacing:-0.4px;color:var(--acc)}.kpi-v.g{color:var(--green)}.kpi-v.r{color:var(--red)}.kpi-v.w{color:var(--warn)}
+.kpi-s{font-size:8px;color:var(--text3);font-family:var(--mono)}
+/* ── SECTION HDR ── */
+.shdr{font-size:16px;font-weight:700;letter-spacing:-0.3px;padding:14px 14px 8px}.shdr span{color:var(--text3);font-weight:400;font-size:11px;margin-left:5px}
+/* ── BRAND TABLE ── */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.tscroll::-webkit-scrollbar{display:none}
+.tscroll table{width:100%;min-width:500px;border-collapse:collapse}
+.tscroll th{font-family:var(--mono);font-size:8px;letter-spacing:0.7px;text-transform:uppercase;color:var(--text3);padding:0 0 8px;text-align:right;font-weight:400;border-bottom:1px solid var(--border)}
+.tscroll th:first-child{text-align:left}
+.tscroll td{padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;text-align:right;font-family:var(--mono)}
+.tscroll td:first-child{text-align:left;font-family:var(--font);font-weight:500}
+.tscroll tr:last-child td{border-bottom:none}
+.bdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+/* ── LEGEND ── */
+.leg{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.leg-i{display:flex;align-items:center;gap:7px;font-size:10px}
+.leg-d{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.leg-n{flex:1;color:var(--text2)}.leg-v{font-family:var(--mono);color:var(--text)}.leg-p{font-family:var(--mono);color:var(--text3);font-size:9px}
+/* ── MINI STAT ── */
+.ms{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--border)}.ms:last-child{border-bottom:none}
+.ms-l{font-size:11px;color:var(--text2)}.ms-v{font-family:var(--mono);font-size:11px;font-weight:500}
+/* ── COMPARE ── */
+.cmp{margin:0 12px 10px;padding:16px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px}
+.cmp-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cmp-t{font-size:12px;font-weight:600;color:var(--text2)}
+.cmp-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}.cmp-row:last-child{border-bottom:none}
+.cmp-lbl{font-size:11px;color:var(--text3);min-width:65px}
+.cmp-vals{display:flex;align-items:center;gap:10px}
+.cmp-now{font-family:var(--mono);font-size:12px;font-weight:600;min-width:60px;text-align:right}
+.cmp-prev{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:50px;text-align:right}
+.cmp-d{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;min-width:42px;text-align:center}
+.cmp-d.up{background:rgba(194,175,132,0.1);color:var(--green)}.cmp-d.dn{background:rgba(240,96,96,0.1);color:var(--red)}
+/* ── STARS ── */
+.star-w{display:inline-block;position:relative;font-size:12px;line-height:1}.star-bg{color:var(--bg3)}.star-f{position:absolute;top:0;left:0;overflow:hidden;color:var(--warn);white-space:nowrap}
+/* ── SETTINGS ── */
+.setsec{padding:0 14px 16px}
+.setsec-t{font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:10px}
+.setitem{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:6px}
+.setitem-l{font-size:12px;font-weight:500;color:var(--text2)}.setitem-s{font-size:9px;color:var(--text3);margin-top:1px}
+.setinput{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:var(--font);font-size:13px;padding:6px 10px;outline:none;width:140px;text-align:right}.setinput:focus{border-color:var(--acc)}
+.tbtn{padding:6px 14px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);color:var(--text3);font-family:var(--font);font-size:11px;font-weight:500;cursor:pointer}.tbtn.on{border-color:var(--acc);color:var(--acc);background:rgba(26,58,110,0.06)}
+.tbtns{display:flex;gap:5px}
+/* ── NAV ── */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-around;height:calc(var(--nav) + var(--safe-b));padding-bottom:var(--safe-b);background:rgba(8,12,20,0.96);backdrop-filter:blur(20px);border-top:1px solid var(--border)}
+.ni-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 12px;cursor:pointer;border:none;background:none;position:relative}
+.ni-btn .ic{font-size:17px;line-height:1;transition:transform 0.15s}.ni-btn .lb{font-size:8px;font-family:var(--mono);letter-spacing:0.4px;color:var(--text3);transition:color 0.15s}
+.ni-btn.on .lb{color:var(--acc)}.ni-btn.on .ic{transform:scale(1.08)}
+.ni-btn.on::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:18px;height:2px;background:#c2af84;border-radius:0 0 2px 2px}
+/* ── LIGHT THEME ── */
+body.light{--bg:#f7f6f3;--bg2:#f0eee9;--bg3:#e4e0d8;--card:#ffffff;--card2:#faf9f7;--border:rgba(0,0,0,0.05);--border2:rgba(0,0,0,0.08);--text:#1a1a1a;--text2:#3d3d3d;--text3:#7a7a7a;--acc:#1a3a6e;--acc2:#1e4d8c;--acc3:#2563b0;--green:#8b7a4a;--red:#b04040;--warn:#8b7a4a}
+body.light::before{background:radial-gradient(ellipse 60% 40% at 15% 0%,rgba(26,58,110,0.03),transparent 60%)!important}
+body.light .top{background:rgba(245,246,249,0.95)}
+body.light .hero{background:linear-gradient(145deg,#fff,#f5f3ee);border-color:rgba(0,0,0,0.05)}
+body.light .hero::after{background:radial-gradient(circle,rgba(194,175,132,0.06),transparent 60%)}
+body.light .hstat{background:rgba(37,99,235,0.03)}
+body.light .card{box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+body.light .kpi{box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+body.light nav{background:rgba(245,246,249,0.97)}
+body.light .datebar{background:var(--bg2)}
+body.light .star-bg{color:#dfe2e8}
+body.light .card-h{color:#3a4458}
+body.light .badge{color:#2563eb;background:rgba(37,99,235,0.08)}
+body.light .kpi-l{color:#6b7a90}
+body.light .kpi-s{color:#8894a8}
+body.light .hstat-l{color:#6b7a90}
+body.light .hero-sub{color:#6b7a90}
+body.light .shdr{color:#1a1e28}
+body.light .shdr span{color:#8894a8}
+body.light .top-date{color:#6b7a90}
+body.light .cmp-lbl{color:#6b7a90}
+body.light .ms-l{color:#3a4458}
+body.light .tscroll th{color:#6b7a90}
+body.light .tscroll td{color:#1a1e28}
+body.light .setsec-t{color:#6b7a90}
+body.light .setitem-l{color:#3a4458}
+body.light .setitem-s{color:#8894a8}
+body.light .ni-btn .lb{color:#8894a8}
+body.light .ni-btn.on .lb{color:#1a3a6e}
+body.light .dbtn{color:#6b7a90;background:#fff;border-color:rgba(0,0,0,0.08)}
+body.light .dbtn.on{background:#1a3a6e;border-color:#1a3a6e;color:#fff}
+body.light .dinput{background:#fff;border-color:rgba(0,0,0,0.1);color:#1a1e28}
+body.light .rbtn{color:#6b7a90;border-color:rgba(0,0,0,0.1)}
+body.light .leg-n{color:#3a4458}
+body.light .leg-v{color:#1a1e28}
+body.light .leg-p{color:#8894a8}
+/* ── ANIMATIONS ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:768px){
+  .app{max-width:100%;margin:0}
+  .top{padding:10px 24px}
+  .datebar{padding:8px 24px}
+  .hero{margin:14px 24px}
+  .hero-grid{grid-template-columns:1fr 1fr 1fr 1fr}
+  .card{margin:0 24px 12px}
+  .kpis{padding:0 24px 12px}
+  .shdr{padding:16px 24px 8px}
+  .setsec{padding:0 24px 16px}
+  nav{height:auto;position:fixed;top:0;bottom:auto;left:0;right:auto;width:72px;flex-direction:column;border-top:none;border-right:1px solid var(--border);padding:16px 0;padding-top:max(16px,env(safe-area-inset-top));gap:8px;z-index:100}
+  .ni-btn{flex-direction:column;gap:3px;padding:10px 8px}
+  .ni-btn .ic{font-size:20px}
+  .ni-btn .lb{font-size:7px}
+  .ni-btn.on::before{top:50%;left:0;right:auto;transform:translateY(-50%);width:2px;height:18px;border-radius:0 2px 2px 0}
+  .app{margin-left:72px}
+  .main{padding-bottom:12px}
+}
+@media(min-width:1024px){
+  nav{width:80px}
+  .app{margin-left:80px;max-width:calc(100% - 80px)}
+  .hero-hi{font-size:26px}
+  .hstat-v{font-size:22px}
+  .kpi{min-width:140px}
+  .kpi-v{font-size:20px}
+  .hero{margin:16px 32px}
+  .card{margin:0 32px 14px}
+  .kpis{padding:0 32px 14px}
+  .top{padding:12px 32px}
+  .datebar{padding:10px 32px}
+  .shdr{padding:18px 32px 10px}
+  .setsec{padding:0 32px 18px}
+}
+@media(min-width:1280px){
+  .page{max-width:1100px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<!-- NAME OVERLAY -->
+<div class="name-ov" id="nameOv" style="position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px">
+<div style="width:56px;height:56px;background:#1a3a6e;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;box-shadow:0 8px 32px rgba(26,58,110,0.3)">🍔</div>
+<h1 style="font-size:22px;font-weight:700;letter-spacing:-0.4px">Virtual Brands</h1>
+<p style="font-size:12px;color:var(--text3);margin:4px 0 28px">Operations Dashboard</p>
+<input type="text" id="nameIn" placeholder="Your name" maxlength="20" style="width:100%;max-width:240px;padding:12px 16px;background:var(--card);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--font);font-size:15px;font-weight:500;outline:none;text-align:center" autocomplete="off">
+<button onclick="saveName()" style="margin-top:14px;padding:11px 36px;background:#1a3a6e;border:none;border-radius:9px;color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(26,58,110,0.3)">Continue</button>
+</div>
+
+<!-- TOP BAR -->
+<div class="top"><div class="logo"><div class="logo-ic">🍔</div><div class="logo-t">Virtual Brands</div></div><div class="top-r"><span class="dot"></span><span class="top-date" id="topDate">—</span><button class="rbtn" onclick="location.reload()">↻</button></div></div>
+
+<!-- DATE PICKER -->
+<div class="datebar" id="datebarDays"></div>
+<div class="datebar">
+<button class="dbtn" onclick="setPeriod('7d',this)">7 Days</button>
+<button class="dbtn" onclick="setPeriod('mtd',this)">MTD</button>
+<button class="dbtn" onclick="setPeriod('ytd',this)">YTD</button>
+<input type="date" class="dinput" id="dateFrom" onchange="setCustomRange()">
+<span style="color:var(--text3);font-size:10px">→</span>
+<input type="date" class="dinput" id="dateTo" onchange="setCustomRange()">
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- OVERVIEW PAGE -->
+<div class="page active" id="pg-overview">
+<div class="hero">
+<div class="hero-hi">Good <span id="tod">evening</span>, <span id="uName">—</span>.</div>
+<div class="hero-sub" id="heroSub">Loading data...</div>
+<div class="hero-grid">
+<div class="hstat"><div class="hstat-v" id="hOrd">—</div><div class="hstat-l">Orders</div></div>
+<div class="hstat"><div class="hstat-v" id="hSales">—</div><div class="hstat-l">Sales</div></div>
+<div class="hstat"><div class="hstat-v" id="hPay">—</div><div class="hstat-l">Payouts</div></div>
+<div class="hstat"><div class="hstat-v" id="hEbitda" style="color:var(--green)">—</div><div class="hstat-l">EBITDA Est.</div></div>
+</div>
+</div>
+<div class="card" style="margin:0 12px 10px">
+<div class="card-h"><span>P&L Summary</span><span class="badge" id="pnlPeriod">—</span></div>
+<div style="display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch" id="pnlBrandFilter"></div>
+<div id="pnlSummary" style="font-family:var(--mono);font-size:12px"></div>
+</div>
+
+<!-- DAY OF WEEK COMPARISON -->
+<div class="card" style="margin:0 12px 10px">
+<div class="card-h"><span>📅 Same Day Comparison</span><span class="badge" id="dowCompBadge">—</span></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+<span style="font-size:9px;color:var(--text3);font-family:var(--mono)">Base day:</span>
+<select id="dowBaseDay" style="background:var(--card);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:4px 8px;outline:none" onchange="changeDowBase()"></select>
+</div>
+<div style="font-size:9px;color:var(--text3);margin-bottom:6px;font-family:var(--mono)">Compare with:</div>
+<div style="display:flex;gap:5px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch" id="dowDatePicker"></div>
+<div id="dowCompare"></div>
+</div>
+
+<div class="kpis">
+<div class="kpi"><div class="kpi-l">Gross Earnings</div><div class="kpi-v" id="kEarn">—</div><div class="kpi-s">Total</div></div>
+<div class="kpi"><div class="kpi-l">Mkt & Fees</div><div class="kpi-v w" id="kFees">—</div><div class="kpi-s">Total</div></div>
+<div class="kpi"><div class="kpi-l">COG Est.</div><div class="kpi-v r" id="kCog">—</div><div class="kpi-s">20% sales</div></div>
+<div class="kpi"><div class="kpi-l">Labor</div><div class="kpi-v r" id="kLabor">—</div><div class="kpi-s">Daily</div></div>
+<div class="kpi"><div class="kpi-l">Rent</div><div class="kpi-v" id="kRent">—</div><div class="kpi-s">$96.77/day</div></div>
+<div class="kpi"><div class="kpi-l">Avg Order</div><div class="kpi-v" id="kAvg">—</div><div class="kpi-s">Per order</div></div>
+<div class="kpi"><div class="kpi-l">EBITDA MTD</div><div class="kpi-v g" id="kMtd">—</div><div class="kpi-s">Month</div></div>
+</div>
+<div class="card"><div class="card-h"><span>📈 Daily Performance</span><span class="badge" id="perfBadge">PERIOD</span></div><div id="perfSummary" style="margin-bottom:10px"></div><div class="chart-w"><canvas id="cSalesEbitda" height="180"></canvas></div></div>
+<div class="card"><div class="card-h"><span>🍕 Brand Mix</span></div><div class="chart-w" style="max-width:190px;margin:0 auto"><canvas id="cDonut" height="190"></canvas></div><div class="leg" id="donutLeg"></div></div>
+<div class="card"><div class="card-h"><span>📊 Orders Ranking</span><span class="badge">BY BRAND</span></div><div class="chart-w"><canvas id="cBrandLines" height="220"></canvas></div></div>
+<div class="card"><div class="card-h"><span>🏪 Brand Earnings</span></div><div class="tscroll"><table id="tblBrands"></table></div></div>
+<!-- WEEKLY ORDERS BY BRAND -->
+<div class="card"><div class="card-h"><span>📈 Weekly Trend</span><span class="badge">TOP BRANDS</span></div><div class="chart-w"><canvas id="cWeekly" height="220"></canvas></div></div>
+
+<!-- PAYOUT VS FEES -->
+<div class="card"><div class="card-h"><span>💰 What You Keep vs What Uber Takes</span></div><div class="chart-w"><canvas id="cWaterfall" height="240"></canvas></div></div>
+
+<!-- FEE BREAKDOWN BY BRAND -->
+<div class="card"><div class="card-h"><span>🔍 Fee Breakdown by Brand</span><span class="badge">OFFERS · ADS · FEES</span></div><div class="chart-w"><canvas id="cFeeBreak" height="260"></canvas></div></div>
+
+<!-- DAY OF WEEK HEATMAP -->
+<div class="card"><div class="card-h"><span>🗓️ Day of Week Performance</span></div><div id="dowHeatmap"></div></div>
+
+<!-- BRAND EFFICIENCY -->
+<div class="card"><div class="card-h"><span>⚡ Brand Efficiency</span><span class="badge">MARGIN %</span></div><div class="chart-w"><canvas id="cEfficiency" height="240"></canvas></div></div>
+
+<!-- CHANNEL ANALYSIS -->
+<div class="card">
+<div class="card-h"><span>📡 Channel Mix</span><span class="badge">ORDERS · REVENUE · PAYOUTS</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px" id="channelKpis"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:4px 0">
+<div style="text-align:center"><div style="font-size:8px;color:var(--text3);font-family:var(--mono);letter-spacing:0.5px;margin-bottom:6px">ORDERS</div><div style="max-width:110px;margin:0 auto"><canvas id="cChannelOrders"></canvas></div></div>
+<div style="text-align:center"><div style="font-size:8px;color:var(--text3);font-family:var(--mono);letter-spacing:0.5px;margin-bottom:6px">REVENUE</div><div style="max-width:110px;margin:0 auto"><canvas id="cChannelRevenue"></canvas></div></div>
+<div style="text-align:center"><div style="font-size:8px;color:var(--text3);font-family:var(--mono);letter-spacing:0.5px;margin-bottom:6px">PAYOUTS</div><div style="max-width:110px;margin:0 auto"><canvas id="cChannelPayout"></canvas></div></div>
+</div>
+<div style="display:flex;justify-content:center;gap:14px;margin-top:8px;font-family:var(--mono);font-size:9px">
+<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#1a3a6e;display:inline-block"></span>Uber</span>
+<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#c2af84;display:inline-block"></span>Kiosk</span>
+<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#c45c5c;display:inline-block"></span>DoorDash</span>
+</div>
+</div>
+
+<!-- CHANNEL TREND -->
+<div class="card">
+<div class="card-h"><span>📈 Channel Trend</span><span class="badge">WEEKLY</span></div>
+<div class="chart-w"><canvas id="cChannelTrend" height="200"></canvas></div>
+</div>
+
+<div class="card"><div class="card-h"><span>⭐ Ratings</span><span class="badge" id="rBadge">—</span></div><div id="ratingsBlock"></div></div>
+</div>
+
+<!-- FINANCIALS PAGE -->
+<div class="page" id="pg-finance">
+<div class="shdr">Financials <span>P&L</span></div>
+<div class="kpis">
+<div class="kpi"><div class="kpi-l">Sales</div><div class="kpi-v" id="fSales">—</div><div class="kpi-s">Gross</div></div>
+<div class="kpi"><div class="kpi-l">Payouts</div><div class="kpi-v g" id="fPay">—</div><div class="kpi-s">Net</div></div>
+<div class="kpi"><div class="kpi-l">Mkt+Fees</div><div class="kpi-v w" id="fFees">—</div><div class="kpi-s">Total</div></div>
+<div class="kpi"><div class="kpi-l">EBITDA</div><div class="kpi-v g" id="fEbitda">—</div><div class="kpi-s">Period</div></div>
+</div>
+
+<div class="card"><div class="card-h"><span>📈 EBITDA Trend</span></div><div class="chart-w"><canvas id="cEbitda" height="200"></canvas></div></div>
+<div class="card"><div class="card-h"><span>💰 OpEx Breakdown</span></div><div id="opexBlock"></div></div>
+</div>
+
+<!-- SETTINGS PAGE -->
+<div class="page" id="pg-settings">
+<div class="shdr">Settings</div>
+<div class="setsec">
+<div class="setsec-t">Profile</div>
+<div class="setitem"><div><div class="setitem-l">Your Name</div><div class="setitem-s">Shown in greeting</div></div><input type="text" class="setinput" id="setName" placeholder="Name" maxlength="20" onchange="updName(this.value)"></div>
+</div>
+<div class="setsec">
+<div class="setsec-t">Appearance</div>
+<div class="setitem"><div><div class="setitem-l">Theme</div><div class="setitem-s">Switch look</div></div><div class="tbtns"><button class="tbtn" id="tDark" onclick="setTheme('dark')">🌙 Dark</button><button class="tbtn on" id="tLight" onclick="setTheme('light')">☀️ Light</button></div></div>
+<div class="setitem"><div><div class="setitem-l">Chart Style</div><div class="setitem-s">Bar or Line charts</div></div><div class="tbtns"><button class="tbtn" id="csBar" onclick="setChartStyle('bar')">▐ Bars</button><button class="tbtn on" id="csLine" onclick="setChartStyle('line')">〰 Lines</button></div></div>
+</div>
+<div class="setsec">
+<div class="setsec-t">Data</div>
+<div class="setitem"><div><div class="setitem-l">Status</div><div class="setitem-s">Google Sheets API</div></div><span style="color:var(--green);font-family:var(--mono);font-size:11px" id="setStatus">—</span></div>
+<div class="setitem"><div><div class="setitem-l">Rows</div><div class="setitem-s">From Data tab</div></div><span style="font-family:var(--mono);font-size:11px" id="setRows">—</span></div>
+</div>
+<div class="setsec">
+<div class="setsec-t">Operating Costs</div>
+<div class="setitem" style="flex-direction:column;align-items:stretch;gap:8px">
+<div class="setitem-l">Default Labor & Rent <span style="font-size:9px;color:var(--text3)">(for new days)</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+<div style="font-size:10px;color:var(--text3)">COG %<br><input type="number" class="setinput" id="setCog" value="20" min="0" max="100" step="1" style="width:100%;margin-top:4px"></div>
+<div style="font-size:10px;color:var(--text3)">Rent / day<br><input type="number" class="setinput" id="setRent" value="96.77" min="0" step="0.01" style="width:100%;margin-top:4px"></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+<div style="font-size:10px;color:var(--text3)">Labor Mon-Tue<br><input type="number" class="setinput" id="setLabMT" value="215.75" min="0" step="0.25" style="width:100%;margin-top:4px"></div>
+<div style="font-size:10px;color:var(--text3)">Labor Wed-Sun<br><input type="number" class="setinput" id="setLabWS" value="320.75" min="0" step="0.25" style="width:100%;margin-top:4px"></div>
+</div>
+<button class="tbtn" onclick="saveNewDefaults()" style="width:100%;margin-top:4px;padding:8px">✓ Save as New Defaults</button>
+<div style="font-size:9px;color:var(--text3)" id="defaultsMsg"></div>
+</div>
+</div>
+
+</div><!-- /main -->
+
+<!-- NAV -->
+<nav>
+<button class="ni-btn on" onclick="go('overview',this)"><span class="ic">📊</span><span class="lb">Today</span></button>
+<button class="ni-btn" onclick="go('finance',this)"><span class="ic">💰</span><span class="lb">Finance</span></button>
+<button class="ni-btn" onclick="go('settings',this)"><span class="ic">⋯</span><span class="lb">More</span></button>
+</nav>
+</div>
+
+<script>
+window._chartStyle='line';
+var LABOR_MAP={'2026-01-01':140.75,'2026-01-02':245.75,'2026-01-03':245.75,'2026-01-04':260.75,'2026-01-05':215.75,'2026-01-06':215.75,'2026-01-07':215.75,'2026-01-08':215.75,'2026-01-09':245.75,'2026-01-10':245.75,'2026-01-11':260.75,'2026-01-12':215.75,'2026-01-13':215.75,'2026-01-14':215.75,'2026-01-15':215.75,'2026-01-16':245.75,'2026-01-17':290.75,'2026-01-18':260.75,'2026-01-19':260.75,'2026-01-20':245.75,'2026-01-21':245.75,'2026-01-22':245.75,'2026-01-23':290.75,'2026-01-24':290.75,'2026-01-25':290.75,'2026-01-26':215.75,'2026-01-27':215.75,'2026-01-28':215.75,'2026-01-29':245.75,'2026-01-30':290.75,'2026-01-31':290.75,'2026-02-01':260.75,'2026-02-02':215.75,'2026-02-03':215.75,'2026-02-04':215.75,'2026-02-05':245.75,'2026-02-06':290.75,'2026-02-07':290.75,'2026-02-08':260.75,'2026-02-09':215.75,'2026-02-10':215.75,'2026-02-11':215.75,'2026-02-12':245.75,'2026-02-13':290.75,'2026-02-14':290.75,'2026-02-15':260.75,'2026-02-16':275.75,'2026-02-17':320.75,'2026-02-18':320.75,'2026-02-19':320.75,'2026-02-20':320.75,'2026-02-21':320.75,'2026-02-22':320.75,'2026-02-23':215.75,'2026-02-24':215.75,'2026-02-25':320.75,'2026-02-26':320.75,'2026-02-27':320.75,'2026-02-28':320.75,'2026-03-01':320.75,'2026-03-02':215.75,'2026-03-03':215.75,'2026-03-04':320.75,'2026-03-05':320.75,'2026-03-06':320.75,'2026-03-07':320.75,'2026-03-08':320.75,'2026-03-09':215.75};
+window._costs={cog:20,labMT:320.75,labWS:320.75,rent:96.77,overrides:{}};
+window._settingsCosts=null;
+const SHEET_ID='1G3JhOyYxvswnHLFVhR9MZQsHTWCV1nn7mddjPXIzmVE';
+const API_KEY='AIzaSyBh18H6VnrThQxQtdDNVMfhdgt8d1oAEOY';
+let RAW=[],DAILY={},BRANDS_LIST=[],PERIOD='today',PFROM='',PTO='';
+
+// Load theme immediately
+(function(){const t=ck('vb_theme');if(t!=='dark')document.body.className='light'})();
+
+const $=id=>document.getElementById(id);
+const fmt$=v=>'$'+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fmtD=v=>(v>=0?'$':'-$')+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+const shortD=d=>{const p=d.split('-');return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})};
+
+function ck(k){const m=document.cookie.match('(^|;)\\s*'+k+'=([^;]*)');return m?decodeURIComponent(m[2]):''}
+function sc(k,v,d){const e=new Date();e.setTime(e.getTime()+(d*864e5));document.cookie=k+'='+encodeURIComponent(v)+';expires='+e.toUTCString()+';path=/;SameSite=Lax'}
+
+function checkName(){const n=ck('vb_name');if(n){$('nameOv').style.display='none';$('uName').textContent=n;$('setName').value=n}else{$('nameIn').focus()}}
+function saveName(){const n=$('nameIn').value.trim();if(!n)return;sc('vb_name',n,365);$('nameOv').style.display='none';$('uName').textContent=n;$('setName').value=n}
+$('nameIn').addEventListener('keydown',e=>{if(e.key==='Enter')saveName()});
+function updName(n){n=n.trim();if(!n)return;sc('vb_name',n,365);$('uName').textContent=n}
+
+window._chartStyle=ck('vb_chart')||'line';
+function setChartStyle(s){
+  window._chartStyle=s;
+  sc('vb_chart',s,365);
+  document.getElementById('csBar').className='tbtn'+(s==='bar'?' on':'');
+  document.getElementById('csLine').className='tbtn'+(s==='line'?' on':'');
+  destroyCharts();render();
+}
+function cStyle(){return window._chartStyle||'bar'}
+
+
+function loadCosts(){
+  if(!window._costs)window._costs={cog:20,labMT:320.75,labWS:320.75,rent:96.77,overrides:{},cogHistory:[]};
+  var saved=ck('vb_costs');
+  if(saved){try{var p=JSON.parse(saved);if(p)window._costs=p}catch(e){}}
+  if(!window._costs.cogHistory)window._costs.cogHistory=[];
+  try{
+    document.getElementById('setCog').value=window._costs.cog||20;
+    document.getElementById('setLabMT').value=window._costs.labMT||215.75;
+    document.getElementById('setLabWS').value=window._costs.labWS||320.75;
+    document.getElementById('setRent').value=window._costs.rent||96.77;
+  }catch(e){}
+}
+
+function saveNewDefaults(){
+  var cog=parseFloat(document.getElementById('setCog').value)||20;
+  var labMT=parseFloat(document.getElementById('setLabMT').value)||215.75;
+  var labWS=parseFloat(document.getElementById('setLabWS').value)||320.75;
+  var rent=parseFloat(document.getElementById('setRent').value)||96.77;
+  var today=new Date().toISOString().slice(0,10);
+  
+  window._costs.cog=cog;
+  window._costs.labMT=labMT;
+  window._costs.labWS=labWS;
+  window._costs.rent=rent;
+  window._costs.cogEffective=today;
+  
+  // Save COG history - so old dates keep old COG
+  if(!window._costs.cogHistory)window._costs.cogHistory=[];
+  window._costs.cogHistory.push({date:today,cog:cog});
+  
+  sc('vb_costs',JSON.stringify(window._costs),365);
+  
+  document.getElementById('defaultsMsg').textContent='Saved from '+today+'! COG:'+cog+'%, Labor:$'+labMT+'/$'+labWS+', Rent:$'+rent;
+  document.getElementById('defaultsMsg').style.color='var(--green)';
+  
+  processData();destroyCharts();render();
+}
+
+function saveCosts(){
+  // COG now saved via Save as New Defaults
+}
+
+function addOverride(){
+  var from=prompt('Start date (YYYY-MM-DD):','2026-01-01');
+  if(!from||!/\d{4}-\d{2}-\d{2}/.test(from))return;
+  var to=prompt('End date (YYYY-MM-DD):','2026-01-31');
+  if(!to||!/\d{4}-\d{2}-\d{2}/.test(to))return;
+  var labor=prompt('Labor cost/day for this period:','215.75');
+  var rent=prompt('Rent/day for this period:','96.77');
+  var cog=prompt('COG % for this period:','20');
+  if(!window._costs.overrides)window._costs.overrides={};
+  var start=new Date(from+'T12:00:00');
+  var end=new Date(to+'T12:00:00');
+  var d=new Date(start);
+  while(d<=end){
+    var ds=d.toISOString().slice(0,10);
+    window._costs.overrides[ds]={labor:parseFloat(labor)||320.75,rent:parseFloat(rent)||96.77,cog:parseFloat(cog)||20,range:from+' to '+to};
+    d.setDate(d.getDate()+1);
+  }
+  sc('vb_costs',JSON.stringify(window._costs),365);
+  renderOverrides();processData();destroyCharts();render();
+}
+
+function renderOverrides(){
+  var el=document.getElementById('overridesList');
+  if(!el)return;
+  var ov=window._costs.overrides||{};
+  var dates=Object.keys(ov).sort();
+  if(!dates.length){el.innerHTML='<div style="color:var(--text3);padding:4px 0">No overrides set</div>';return}
+  el.innerHTML='';
+  var ranges={};
+  dates.forEach(function(d){
+    var key=ov[d].range||d;
+    if(!ranges[key])ranges[key]={dates:[],sample:ov[d]};
+    ranges[key].dates.push(d);
+  });
+  Object.keys(ranges).forEach(function(key){
+    var r=ranges[key];
+    var first=r.dates[0];var last=r.dates[r.dates.length-1];var o=r.sample;
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;gap:6px';
+    var sp1=document.createElement('span');sp1.style.cssText='min-width:0;flex-shrink:1';
+    sp1.textContent=first===last?first:first+' to '+last;
+    var sp2=document.createElement('span');sp2.style.cssText='white-space:nowrap;color:var(--text2)';
+    sp2.textContent='L:$'+o.labor+' R:$'+o.rent+' C:'+o.cog+'%';
+    var btn=document.createElement('button');btn.textContent='\u2715';
+    btn.style.cssText='background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;flex-shrink:0';
+    btn.onclick=function(){r.dates.forEach(function(dd){delete ov[dd]});sc('vb_costs',JSON.stringify(window._costs),365);renderOverrides();processData();destroyCharts();render()};
+    row.appendChild(sp1);row.appendChild(sp2);row.appendChild(btn);el.appendChild(row);
+  });
+}
+
+function removeOverride(date){
+  delete window._costs.overrides[date];
+  sc('vb_costs',JSON.stringify(window._costs),365);
+  renderOverrides();processData();destroyCharts();render();
+}
+
+function getCosts(dateStr){
+  var savedRent=window._costs.rent||96.77;
+  var dow=new Date(dateStr+'T12:00:00').getDay();
+  var savedLabMT=window._costs.labMT||320.75;
+  var savedLabWS=window._costs.labWS||320.75;
+  // COG: check history for non-retroactive changes
+  var cog=20;
+  var history=(window._costs.cogHistory)||[];
+  for(var ci=history.length-1;ci>=0;ci--){if(dateStr>=history[ci].date){cog=history[ci].cog;break}}
+  // Labor: hardcoded map first, then settings sheet, then default
+  var labor=LABOR_MAP[dateStr]||0;
+  var rent=savedRent;
+  if(!labor&&window._settingsCosts&&window._settingsCosts[dateStr]){
+    var sc2=window._settingsCosts[dateStr];
+    if(sc2.labor>0)labor=sc2.labor;
+    if(sc2.rent>0)rent=sc2.rent;
+  }
+  if(!labor)labor=(dow===1||dow===2)?savedLabMT:savedLabWS;
+  return{labor:labor,rent:rent,cog:cog};
+}
+
+function setTheme(t){document.body.className=t==='light'?'light':'';sc('vb_theme',t,365);$('tDark').className='tbtn'+(t==='dark'?' on':'');$('tLight').className='tbtn'+(t==='light'?' on':'');destroyCharts();render()}
+function go(p,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.ni-btn').forEach(x=>x.classList.remove('on'));$('pg-'+p).classList.add('active');btn.classList.add('on');document.querySelector('.main').scrollTop=0}
+
+// ═══ DATE PERIOD ═══
+function setPeriod(p,btn){PERIOD=p;document.querySelectorAll('.dbtn').forEach(x=>x.classList.remove('on'));if(btn)btn.classList.add('on');destroyCharts();render()}
+function setCustomRange(){const f=$('dateFrom').value,t=$('dateTo').value;if(f&&t){PFROM=f;PTO=t;PERIOD='custom';document.querySelectorAll('.dbtn').forEach(x=>x.classList.remove('on'));destroyCharts();render()}}
+
+function getDateRange(){
+  const dates=Object.keys(DAILY).sort();
+  if(!dates.length)return[];
+  const last=dates[dates.length-1];
+  const d=new Date(last+'T12:00:00');
+  if(PERIOD==='today')return[last];
+  if(PERIOD==='yesterday'){const y=new Date(d);y.setDate(y.getDate()-1);const ys=y.toISOString().slice(0,10);return dates.includes(ys)?[ys]:[]}
+  if(PERIOD==='7d'){const from=new Date(d);from.setDate(from.getDate()-6);return dates.filter(x=>x>=from.toISOString().slice(0,10)&&x<=last)}
+  if(PERIOD==='mtd'){const mo=last.slice(0,7);return dates.filter(x=>x.startsWith(mo))}
+  if(PERIOD==='ytd')return dates;
+  if(PERIOD==='custom')return dates.filter(x=>x>=PFROM&&x<=PTO);
+  if(PERIOD.indexOf('day_')===0){var dayDate=PERIOD.slice(4);return dates.includes(dayDate)?[dayDate]:[]}
+  return[last];
+}
+
+// ═══ DATA LOADING ═══
+async function loadData(){
+  try{
+    const url='https://sheets.googleapis.com/v4/spreadsheets/'+SHEET_ID+'/values/Data?key='+API_KEY+'&_='+Date.now();
+    const res=await fetch(url);
+    if(!res.ok){$('heroSub').textContent='API Error '+res.status;return false}
+    const data=await res.json();
+    const rows=data.values;
+    if(!rows||rows.length<2)return false;
+    const h=rows[0];
+    RAW=[];
+    console.log('Headers from sheet:', h.join(' | '));
+    for(let i=1;i<rows.length;i++){
+      const obj={};
+      h.forEach((k,idx)=>{
+        const key=k.trim();
+        const val=(rows[i][idx]||'').toString().trim();
+        obj[key]=val;
+      });
+      RAW.push(obj);
+    }
+    // Load Settings tab (labor, rent per day)
+    try{
+      // Try different tab names for Settings
+      var setTabNames=['Settings','settings','Setting','setting','Config'];
+      var setUrl='';
+      var setRes=null;
+      for(var tn=0;tn<setTabNames.length;tn++){
+        setUrl='https://sheets.googleapis.com/v4/spreadsheets/'+SHEET_ID+'/values/'+encodeURIComponent(setTabNames[tn])+'?key='+API_KEY+'&_='+Date.now();
+        setRes=await fetch(setUrl);
+        console.log('Trying tab "'+setTabNames[tn]+'":',setRes.status);
+        if(setRes.ok)break;
+      }
+      console.log('Loading Settings tab...');
+      if(setRes.ok){
+        const setData=await setRes.json();
+        const setRows=setData.values||[];
+        console.log('Settings rows:',setRows.length);
+        if(setRows.length>1){
+          const sh=setRows[0];
+          console.log('Settings headers:',sh.join(', '));
+          window._settingsCosts={};
+          for(var si=1;si<setRows.length;si++){
+            var sObj={};
+            sh.forEach(function(k,idx){sObj[k.trim()]=(setRows[si][idx]||'').trim()});
+            var sDate=sObj['date']||'';
+            // Normalize date format
+            if(sDate){
+              // Handle M/D/YYYY format
+              if(sDate.match(/^\d{1,2}\/\d{1,2}\/\d{4}/)){
+                var dp=sDate.split('/');
+                sDate=dp[2]+'-'+dp[0].padStart(2,'0')+'-'+dp[1].padStart(2,'0');
+              }
+              // Handle YYYY-MM-DD already
+              if(sDate.match(/^\d{4}-\d{2}-\d{2}/)){
+                window._settingsCosts[sDate]={labor:parseFloat(sObj['labor'])||0,rent:parseFloat(sObj['rent'])||0};
+              }
+            }
+          }
+          console.log('Settings costs loaded:',Object.keys(window._settingsCosts).length,'days');
+          if(Object.keys(window._settingsCosts).length>0){
+            var firstKey=Object.keys(window._settingsCosts).sort()[0];
+            console.log('First settings date:',firstKey,window._settingsCosts[firstKey]);
+          }
+        }
+      }
+    }catch(e){console.log('Settings tab error:',e.message)}
+    
+    processData();
+    const allDates=Object.keys(DAILY).sort();
+    console.log('Dates loaded:', allDates.length);
+    if(allDates.length>0){
+      const sample=DAILY[allDates[allDates.length-1]];
+      console.log('Last day:', sample.date);
+      console.log('  Earnings:', sample.totalEarnings);
+      console.log('  Payout:', sample.totalPayout);
+      console.log('  Orders:', sample.totalOrders);
+      console.log('  Offers:', sample.totalOffers);
+      console.log('  Ad Spend:', sample.totalAdSpend);
+      console.log('  Uber Fees:', sample.totalUberFees);
+      console.log('  COG (20%):', sample.cog);
+      console.log('  Labor:', sample.labor);
+      console.log('  Rent:', sample.rent);
+      console.log('  Fees total:', sample.fees);
+      console.log('  EBITDA:', sample.ebitda);
+      console.log('  getCosts check:', getCosts(sample.date));
+      console.log('  Settings loaded:', window._settingsCosts ? Object.keys(window._settingsCosts).length + ' days' : 'null');
+      if(window._settingsCosts){var sKeys=Object.keys(window._settingsCosts).sort();console.log('  Settings first date:', sKeys[0], 'last:', sKeys[sKeys.length-1]);console.log('  Sample settings:', window._settingsCosts[sKeys[0]]);}
+      console.log('  Brands:', Object.keys(sample.brands));
+    }
+    return true;
+  }catch(e){$('heroSub').textContent='Error: '+e.message;return false}
+}
+
+function num(v){return parseFloat(v)||0}
+
+function processData(){
+  DAILY={};
+  const brandSet=new Set();
+  RAW.forEach(r=>{
+    const d=r['Date']||'';
+    const brand=r['Brand']||'';
+    if(!d)return;
+    brandSet.add(brand);
+    if(!DAILY[d])DAILY[d]={date:d,brands:{},totalOrders:0,totalEarnings:0,totalPayout:0,totalOffers:0,totalAdSpend:0,totalUberFees:0,totalMktAdj:0};
+    const day=DAILY[d];
+    const earn=num(r['Earnings']);
+    var payout=num(r['Total Payout']);
+    const orders=num(r['Total Orders']);
+    const offers=num(r['Offers on Items']);
+    const offerRedem=num(r['Offer Redemptions']||r['Offer Rede']||0);
+    const adSpend=num(r['Ad Spend']||r['Ad Spends']||0);
+    const uberFees=num(r['Uber Fees']);
+    const mktAdj=num(r['Marketing Adjustments']||r['Marketing Adjustment']||r['Marketing Adjustmen']||0);
+    
+    day.totalOrders+=orders;
+    day.totalEarnings+=earn;
+    day.totalPayout+=payout;
+    day.totalOffers+=offers+offerRedem;
+    day.totalAdSpend+=adSpend;
+    day.totalUberFees+=uberFees;
+    day.totalMktAdj+=mktAdj;
+    
+    var channel=(r['Channel']||'Uber').trim();
+    
+    if(!day.brands[brand])day.brands[brand]={orders:0,earnings:0,payout:0};
+    day.brands[brand].orders+=orders;
+    day.brands[brand].earnings+=earn;
+    day.brands[brand].payout+=payout;
+    
+    // Channel tracking
+    if(!day.channels)day.channels={};
+    if(!day.channels[channel])day.channels[channel]={orders:0,earnings:0,payout:0,fees:0};
+    day.channels[channel].orders+=orders;
+    day.channels[channel].earnings+=earn;
+    day.channels[channel].payout+=payout;
+    day.channels[channel].fees+=Math.abs(offers)+Math.abs(adSpend)+Math.abs(uberFees)+Math.abs(mktAdj);
+    
+
+  });
+  BRANDS_LIST=[...brandSet].filter(b=>b).sort();
+  
+  // Compute COG, labor, rent, EBITDA for each day
+  Object.values(DAILY).forEach(day=>{
+    var costs=getCosts(day.date);
+    day.cogPct=costs.cog;
+    day.cog=day.totalEarnings*(costs.cog/100);
+    day.labor=costs.labor;
+    day.rent=costs.rent;
+    day.fees=day.totalEarnings-day.totalPayout;
+    day.ebitda=day.totalPayout-day.cog-day.labor-day.rent;
+  });
+}
+
+// ═══ BRAND COLORS ═══
+function shortName(b){
+  if(!b)return'';
+  if(b.indexOf('Hibachi')>=0)return'Hibachi';
+  if(b.indexOf('Meating Burgers')>=0)return'Mt.Burgers';
+  if(b.indexOf('Meating Chicks')>=0)return'Mt.Chicks';
+  if(b.indexOf('Smacked')>=0)return'Smacked';
+  if(b.indexOf('Senor')>=0)return'Senor';
+  if(b.indexOf('brEggfast')>=0)return'brEggfast';
+  if(b.indexOf('Steak')>=0)return'Steak&F';
+  if(b.indexOf('UFF')>=0)return'UFF!';
+  return b.length>12?b.substring(0,10):b;
+}
+const BCOLS=['#1a3a6e','#c2af84','#2563b0','#8b7a4a','#3d3d3d','#5a7ab5','#d4c49a','#7a6840','#4a6a9e'];
+function brandColor(i){return BCOLS[i%BCOLS.length]}
+
+// ═══ CHART HELPERS ═══
+function destroyCharts(){document.querySelectorAll('canvas').forEach(cv=>{const c=Chart.getChart(cv);if(c)c.destroy()})}
+function isLight(){return document.body.classList.contains('light')}
+function cGrid(){return isLight()?'rgba(0,0,0,0.08)':'rgba(100,140,255,0.04)'}
+function cTip(){return isLight()?'#1a1e28':'#0e1525'}
+function setupChartDefaults(){
+  Chart.defaults.plugins.tooltip.titleColor=isLight()?'#ffffff':'#e4eaf4';
+  Chart.defaults.plugins.tooltip.bodyColor=isLight()?'#ffffff':'#e4eaf4';
+  Chart.defaults.plugins.tooltip.borderColor=isLight()?'rgba(0,0,0,0.1)':'rgba(100,140,255,0.1)';
+  Chart.defaults.plugins.tooltip.borderWidth=1;
+  Chart.defaults.plugins.tooltip.padding=10;
+  Chart.defaults.plugins.tooltip.cornerRadius=8;
+  Chart.defaults.plugins.legend.labels.color=isLight()?'#2a3040':'#4a5a74';
+}
+
+// ═══ GRADUAL STARS ═══
+function stars(r){let h='';for(let i=1;i<=5;i++){const f=Math.min(1,Math.max(0,r-(i-1)));h+='<span class="star-w"><span class="star-bg">\u2605</span><span class="star-f" style="width:'+Math.round(f*100)+'%">\u2605</span></span>'}return h}
+
+// ═══ RENDER ═══
+
+// ═══ P&L BRAND FILTER ═══
+window._pnlBrand='all';
+function setPnlBrand(brand,btn){
+  window._pnlBrand=brand;
+  document.querySelectorAll('#pnlBrandFilter .dbtn').forEach(x=>x.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  renderPnl(brand);
+}
+
+function renderPnl(brand){
+  const {days,activeBrands,numBrands,range}=window._pnlData||{};
+  if(!days||!days.length)return;
+  
+  const isAll=brand==='all';
+  var share=1;
+  
+  // Aggregate per brand from RAW
+  // IMPORTANT: Total Fees = Earnings - Total Payout (this captures ALL deductions correctly)
+  // Marketing Adjustment and Offer Redemption Fee are already included in Total Payout
+  // So we only show Offers, Ad Spends, and Platform Fees as line items
+  let totEarnings=0,totOffers=0,totAds=0,totUberFees=0,totPayout=0,totOrders=0;
+  const brandOffers={},brandAds={},brandFees={},brandEarnings={},brandPayout={},brandOrders={};
+  
+  const dateSet=new Set(days.map(d=>d.date));
+  
+  // Channel+Brand earnings for expandable sales breakdown
+  const channelBrandEarnings={},channelBrandOrders={};
+  
+  RAW.forEach(r=>{
+    const d=r['Date']||'';
+    const b=r['Brand']||'';
+    if(!dateSet.has(d))return;
+    if(!isAll && b!==brand)return;
+    
+    const ch=(r['Channel']||'Uber').trim();
+    const earn=num(r['Earnings']);
+    const offers=Math.abs(num(r['Offers on Items']));
+    const ads=Math.abs(num(r['Ad Spends']));
+    const uFees=Math.abs(num(r['Uber Fees']));
+    var payout=num(r['Total Payout']);
+    const orders=num(r['Total Orders']);
+    
+    totEarnings+=earn;
+    totOffers+=offers;
+    totAds+=ads;
+    totUberFees+=uFees;
+    totPayout+=payout;
+    totOrders+=orders;
+    
+    // Per brand breakdown for expandable
+    if(isAll&&b){
+      if(!brandOffers[b])brandOffers[b]=0;
+      if(!brandAds[b])brandAds[b]=0;
+      if(!brandFees[b])brandFees[b]=0;
+      if(!brandEarnings[b])brandEarnings[b]=0;
+      if(!brandPayout[b])brandPayout[b]=0;
+      if(!brandOrders[b])brandOrders[b]=0;
+      brandOffers[b]+=offers;
+      brandAds[b]+=ads;
+      brandFees[b]+=uFees;
+      brandEarnings[b]+=earn;
+      brandPayout[b]+=payout;
+      brandOrders[b]+=orders;
+    }
+    
+    // Channel+Brand for sales breakdown
+    if(isAll&&b&&earn>0){
+      var cbKey=ch+' '+shortName(b);
+      if(!channelBrandEarnings[cbKey])channelBrandEarnings[cbKey]=0;
+      channelBrandEarnings[cbKey]+=earn;
+    }
+  });
+  
+  // Total fees = Earnings - Payout (the true deduction, matches the manual P&L)
+  const totFeesAll=totEarnings-totPayout;
+  // Line items shown: Offers + Ads + Platform Fees (for display breakdown only)
+  const totLineItemFees=totOffers+totAds+totUberFees;
+  
+  // Calculate operating costs
+  // For individual brand: prorate by % of payout volume
+  if(!isAll){
+    var allPayouts=0,brandPayouts=0;
+    var dateSet3=new Set(days.map(function(dd){return dd.date}));
+    RAW.forEach(function(r){
+      if(!dateSet3.has(r['Date']))return;
+      var pp=num(r['Total Payout']);
+      if(pp>0)allPayouts+=pp;
+      if(r['Brand']===brand&&pp>0)brandPayouts+=pp;
+    });
+    share=allPayouts>0?(brandPayouts/allPayouts):0;
+  }
+  // COG per day (respects effective date changes)
+  let totCog=0;
+  days.forEach(function(dd){
+    var dCosts=getCosts(dd.date);
+    var dayE=0;
+    if(isAll){dayE=dd.totalEarnings}
+    else if(dd.brands[brand]){dayE=dd.brands[brand].earnings}
+    totCog+=dayE*(dCosts.cog/100);
+  });
+  let totLabor=0,totRent=0;
+  days.forEach(function(dd){
+    var dCosts=getCosts(dd.date);
+    totLabor+=dCosts.labor*share;
+    totRent+=dCosts.rent*share;
+  });
+  const totOpex=totCog+totLabor+totRent;
+  const ebitda=totPayout-totCog-totLabor-totRent;
+  
+  // Build expandable rows helper
+  function expandableRow(label,val,breakdownObj,keyName){
+    if(!isAll||!breakdownObj)return simpleRow(label,val,1,false);
+    const sorted=Object.entries(breakdownObj).filter(([b,v])=>v>0.5).sort((a,b)=>b[1]-a[1]);
+    if(sorted.length===0)return simpleRow(label,val,1,false);
+    const id='pnl_'+keyName;
+    let h='<div>';
+    h+='<div onclick="togglePnl(\x27'+id+'\x27,this)" style="display:flex;justify-content:space-between;padding:5px 0;cursor:pointer;padding-left:16px">';
+    h+='<span style="color:var(--text3)"><span class="pnl-arrow" style="display:inline-block;transition:transform 0.2s;font-size:8px;margin-right:4px">▶</span>'+label+'</span>';
+    h+='<span style="color:var(--text2)">'+fmtD(-Math.abs(val))+'</span></div>';
+    h+='<div id="'+id+'" style="display:none;padding-left:32px;margin-bottom:4px">';
+    sorted.forEach(([b,v])=>{
+      h+='<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:10px">';
+      h+='<span style="color:var(--text3)">'+b+'</span>';
+      h+='<span style="color:var(--text3)">'+fmtD(-v)+'</span></div>';
+    });
+    h+='</div></div>';
+    return h;
+  }
+  
+  function simpleRow(label,val,indent,bold,color,size,pct){
+    const pl=indent?'16px':'0';
+    const w=bold?'600':'400';
+    const c2=color||((val<0)?'var(--text2)':'var(--text)');
+    const fs=size||'12px';
+    var pctStr=pct!==undefined&&pct!==null?'<span style="color:var(--text3);font-size:9px;margin-left:6px">'+pct.toFixed(1)+'%</span>':'';
+    return '<div style="display:flex;justify-content:space-between;padding:4px 0;padding-left:'+pl+';font-weight:'+w+'"><span style="color:'+(indent?'var(--text3)':'var(--text2)')+'">'+label+'</span><span style="color:'+c2+';font-size:'+fs+'">'+fmtD(val)+pctStr+'</span></div>';
+  }
+  
+  let h='';
+  
+  // Orders count - expandable
+  var ordByBrand={},ordByChannel={};
+  var dateSetOrd=new Set(days.map(function(d){return d.date}));
+  RAW.forEach(function(r){
+    if(!dateSetOrd.has(r['Date']))return;
+    if(!isAll&&r['Brand']!==brand)return;
+    var ob=r['Brand']||'';var oc=(r['Channel']||'Uber').trim();var ords=num(r['Total Orders']);
+    if(ob){if(!ordByBrand[ob])ordByBrand[ob]=0;ordByBrand[ob]+=ords;}
+    if(oc){if(!ordByChannel[oc])ordByChannel[oc]=0;ordByChannel[oc]+=ords;}
+  });
+  
+  h+='<div onclick="togglePnl(\x27pnl_orders\x27,this)" style="display:flex;justify-content:space-between;padding:6px 0;margin-bottom:4px;border-bottom:1px solid var(--border);cursor:pointer">';
+  h+='<span style="color:var(--text2);font-weight:600"><span class="pnl-arrow" style="display:inline-block;transition:transform 0.2s;font-size:8px;margin-right:4px">▶</span>Total Orders</span>';
+  h+='<span style="color:var(--acc);font-weight:700;font-size:14px">'+totOrders+'</span></div>';
+  h+='<div id="pnl_orders" style="display:none;padding-left:16px;margin-bottom:8px;font-family:var(--mono);font-size:10px">';
+  if(isAll){
+    h+='<div style="color:var(--text3);font-size:8px;letter-spacing:0.5px;margin-bottom:4px">BY CHANNEL</div>';
+    Object.entries(ordByChannel).sort(function(a,b){return b[1]-a[1]}).forEach(function(e){
+      h+='<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--text3)">'+e[0]+'</span><span>'+e[1]+'</span></div>';
+    });
+    h+='<div style="color:var(--text3);font-size:8px;letter-spacing:0.5px;margin:6px 0 4px">BY BRAND</div>';
+  }
+  Object.entries(ordByBrand).sort(function(a,b){return b[1]-a[1]}).forEach(function(e){
+    if(e[1]>0)h+='<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--text3)">'+shortName(e[0])+'</span><span>'+e[1]+'</span></div>';
+  });
+  h+='</div>';
+  
+  h+=simpleRow('Total Sales',totEarnings,0,true,null,null,100);
+  
+  // Expandable sales breakdown by channel+brand
+  if(isAll&&Object.keys(channelBrandEarnings).length>0){
+    h+='<div onclick="togglePnl(\x27pnl_sales\x27,this)" style="display:flex;justify-content:space-between;padding:3px 0;cursor:pointer;padding-left:16px">';
+    h+='<span style="color:var(--text3);font-size:10px"><span class="pnl-arrow" style="display:inline-block;transition:transform 0.2s;font-size:8px;margin-right:4px">▶</span>Sales Breakdown</span>';
+    h+='<span style="color:var(--text3);font-size:10px"></span></div>';
+    h+='<div id="pnl_sales" style="display:none;padding-left:24px;margin-bottom:4px">';
+    Object.entries(channelBrandEarnings).sort(function(a,b){return b[1]-a[1]}).forEach(function(e){
+      h+='<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:10px">';
+      h+='<span style="color:var(--text3)">'+e[0]+' Earnings</span>';
+      h+='<span style="color:var(--text3)">'+fmtD(e[1])+'</span></div>';
+    });
+    h+='</div>';
+  }
+  
+  // Fee line items (for breakdown display)
+  if(isAll){
+    h+=expandableRow('Offers on Items',-totOffers,brandOffers,'offers');
+    h+=expandableRow('Ad Spend',-totAds,brandAds,'ads');
+    h+=expandableRow('Platform Fees',-totUberFees,brandFees,'uberfees');
+  } else {
+    h+=simpleRow('Offers on Items',-totOffers,1,false,null,null,totEarnings?totOffers/totEarnings*100:0);
+    h+=simpleRow('Ad Spend',-totAds,1,false,null,null,totEarnings?totAds/totEarnings*100:0);
+    h+=simpleRow('Platform Fees',-totUberFees,1,false,null,null,totEarnings?totUberFees/totEarnings*100:0);
+  }
+  // Show "Other Adjustments" if line items don't add up to total fees
+  var otherAdj=totFeesAll-totLineItemFees;
+  if(Math.abs(otherAdj)>0.5){
+    h+=simpleRow('Other Adjustments',-(otherAdj),1,false);
+  }
+  
+  h+='<div style="border-top:1px solid var(--border);margin-top:4px;padding-top:6px"></div>';
+  h+=simpleRow('Total Marketing & Fees',-totFeesAll,0,true,null,null,totEarnings?totFeesAll/totEarnings*100:0);
+  
+  h+='<div style="height:2px;background:var(--border);margin:8px 0"></div>';
+  
+  // Expandable payouts by brand
+  if(isAll){
+    h+='<div onclick="togglePnl(\x27pnl_payouts\x27,this)" style="display:flex;justify-content:space-between;padding:6px 0;cursor:pointer">';
+    h+='<span style="color:var(--text2);font-weight:600"><span class="pnl-arrow" style="display:inline-block;transition:transform 0.2s;font-size:8px;margin-right:4px">▶</span>Total Payouts</span>';
+    h+='<span style="color:var(--acc);font-weight:700;font-size:13px">'+fmtD(totPayout)+'<span style="color:var(--text3);font-size:9px;margin-left:6px">'+(totEarnings?((totPayout/totEarnings)*100).toFixed(1):'0')+'%</span></span></div>';
+    h+='<div id="pnl_payouts" style="display:none;padding-left:16px;margin-bottom:4px">';
+    Object.entries(brandPayout).sort(function(a,b){return b[1]-a[1]}).forEach(function(e){
+      if(Math.abs(e[1])>0.01)h+='<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:10px"><span style="color:var(--text3)">'+shortName(e[0])+'</span><span style="color:var(--text3)">'+fmtD(e[1])+'</span></div>';
+    });
+    h+='</div>';
+  } else {
+    h+=simpleRow('Total Payouts',totPayout,0,true,'var(--acc)','13px',totEarnings?totPayout/totEarnings*100:0);
+  }
+  
+  h+='<div style="height:8px"></div>';
+  if(!isAll){
+    h+='<div style="font-size:9px;color:var(--text3);padding:2px 0;margin-bottom:4px">Fixed costs prorated by payout volume ('+(share*100).toFixed(1)+'%)</div>';
+  }
+  h+=simpleRow('Cost of Goods (20%)',-totCog,1,false,null,null,totEarnings?totCog/totEarnings*100:0);
+  h+=simpleRow('Labor ('+days.length+' days)',-totLabor,1,false,null,null,totEarnings?totLabor/totEarnings*100:0);
+  h+=simpleRow('Rent ('+days.length+' days)',-totRent,1,false,null,null,totEarnings?totRent/totEarnings*100:0);
+  h+='<div style="border-top:1px solid var(--border);margin-top:4px;padding-top:6px"></div>';
+  h+=simpleRow('Total Operating Expenses',-totOpex,0,true,null,null,totEarnings?totOpex/totEarnings*100:0);
+  
+  h+='<div style="height:2px;background:var(--acc);opacity:0.2;margin:10px 0"></div>';
+  const eColor=ebitda>=0?'var(--green)':'var(--red)';
+  h+='<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:700">';
+  h+='<span style="color:var(--text);font-size:13px">EBITDA Estimated</span>';
+  h+='<span style="color:'+eColor+';font-size:16px">'+fmtD(ebitda)+'</span></div>';
+  
+  // Margin %
+  if(totEarnings>0){
+    const margin=(ebitda/totEarnings*100).toFixed(1);
+    h+='<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:10px">';
+    h+='<span style="color:var(--text3)">EBITDA Margin</span>';
+    h+='<span style="color:'+eColor+'">'+margin+'%</span></div>';
+  }
+  
+  $('pnlSummary').innerHTML=h;
+}
+
+function togglePnl(id,el){
+  const div=document.getElementById(id);
+  if(!div)return;
+  const open=div.style.display!=='none';
+  div.style.display=open?'none':'block';
+  const arrow=el.querySelector('.pnl-arrow');
+  if(arrow)arrow.style.transform=open?'':'rotate(90deg)';
+}
+
+function changeDowBase(){
+  var sel=document.getElementById('dowBaseDay');
+  if(!sel)return;
+  var baseDate=sel.value;
+  var baseDay=DAILY[baseDate];
+  if(!baseDay)return;
+  var dow=new Date(baseDate+'T12:00:00').getDay();
+  var dowNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('dowCompBadge').textContent=dowNames[dow]+'s';
+  var allDaysArr=Object.values(DAILY).sort(function(a,b){return b.date.localeCompare(a.date)});
+  var allSameDow=allDaysArr.filter(function(d){return new Date(d.date+'T12:00:00').getDay()===dow});
+  // Put selected base day first
+  var baseIdx=allSameDow.findIndex(function(d){return d.date===baseDate});
+  if(baseIdx>0){var item=allSameDow.splice(baseIdx,1)[0];allSameDow.unshift(item)}
+  window._dowDates=allSameDow;
+  window._dowSelected={};
+  if(allSameDow.length>1)window._dowSelected[allSameDow[1].date]=true;
+  renderDowPicker();
+  renderDowTable();
+}
+
+function renderDowPicker(){
+  var el=document.getElementById('dowDatePicker');
+  if(!el||!window._dowDates)return;
+  el.innerHTML='';
+  // Show up to 8 previous same-weekday dates (not today)
+  var prev=window._dowDates.slice(1,9);
+  prev.forEach(function(d){
+    var btn=document.createElement('button');
+    btn.className='dbtn'+(window._dowSelected[d.date]?' on':'');
+    btn.style.cssText='font-size:10px;padding:4px 10px;flex-shrink:0';
+    btn.textContent=shortD(d.date);
+    btn.onclick=function(){
+      if(window._dowSelected[d.date]){
+        delete window._dowSelected[d.date];
+        btn.classList.remove('on');
+      } else {
+        // Max 4 comparison dates
+        var selCount=Object.keys(window._dowSelected).filter(function(k){return k!==window._dowDates[0].date}).length;
+        if(selCount>=4){return}
+        window._dowSelected[d.date]=true;
+        btn.classList.add('on');
+      }
+      renderDowTable();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function renderDowTable(){
+  var el=document.getElementById('dowCompare');
+  if(!el||!window._dowDates)return;
+  
+  var today=window._dowDates[0];
+  // Get selected comparison dates (not today)
+  var compDates=window._dowDates.slice(1).filter(function(d){return window._dowSelected[d.date]});
+  
+  if(compDates.length===0){
+    el.innerHTML='<div style="color:var(--text3);font-size:11px;text-align:center;padding:12px">Tap dates above to compare</div>';
+    return;
+  }
+  
+  var dh='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">';
+  dh+='<table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:10px">';
+  
+  // Header
+  dh+='<tr><th style="text-align:left;padding:6px 4px;color:var(--text3);font-weight:400;border-bottom:1px solid var(--border);font-size:9px"></th>';
+  dh+='<th style="text-align:right;padding:6px 4px;border-bottom:1px solid var(--border);font-size:9px;color:var(--acc);font-weight:600">'+shortD(today.date)+'</th>';
+  compDates.forEach(function(d){
+    dh+='<th style="text-align:right;padding:6px 4px;border-bottom:1px solid var(--border);font-size:9px;color:var(--text2);font-weight:400">'+shortD(d.date)+'</th>';
+  });
+  dh+='</tr>';
+  
+  var metrics=[
+    {label:'Orders',key:'totalOrders',fmt:function(v){return Math.round(v)},invert:false},
+    {label:'Earnings',key:'totalEarnings',fmt:function(v){return fmt$(v)},invert:false},
+    {label:'Payouts',key:'totalPayout',fmt:function(v){return fmt$(v)},invert:false},
+    {label:'Fees',key:'fees',fmt:function(v){return fmtD(-v)},invert:true},
+    {label:'EBITDA',key:'ebitda',fmt:function(v){return fmtD(v)},invert:false}
+  ];
+  
+  metrics.forEach(function(m){
+    dh+='<tr>';
+    dh+='<td style="text-align:left;padding:6px 4px;color:var(--text2);border-bottom:1px solid var(--border)">'+m.label+'</td>';
+    
+    var todayVal=today[m.key]||0;
+    var otherVal=compDates.length===1?(compDates[0][m.key]||0):0;
+    // Avg of selected comparison dates
+    var avgComp=compDates.reduce(function(s,d){return s+(d[m.key]||0)},0)/compDates.length;
+    var pctDiff=avgComp!==0?((todayVal-avgComp)/Math.abs(avgComp)*100):0;
+    var isGood=m.invert?pctDiff>0:pctDiff>0;
+    var pcColor=Math.abs(pctDiff)<0.5?'var(--text3)':isGood?'#22c55e':'#ef4444';
+    var pcSign=pctDiff>0?'+':'';
+    var pcText=Math.abs(pctDiff)<0.5?'':'<div style="font-size:8px;color:'+pcColor+'">'+pcSign+Math.round(pctDiff)+'%</div>';
+    
+    // Today cell with % vs avg of selected
+    var todayPcText='';
+    var td=avgComp!==0?((todayVal-avgComp)/Math.abs(avgComp)*100):0;
+    // For fees (negative numbers): closer to 0 = less fees = good
+    var tGood=m.invert?td>0:td>0;
+    var tCol=Math.abs(td)<0.5?'var(--text3)':tGood?'#22c55e':'#ef4444';
+    todayPcText=Math.abs(td)<0.5?'':'<div style="font-size:8px;color:'+tCol+'">'+(td>0?'+':'')+Math.round(td)+'%</div>';
+    dh+='<td style="text-align:right;padding:6px 4px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text)">'+m.fmt(todayVal)+todayPcText+'</td>';
+    
+    // Comparison cells - neutral numbers, colored % below
+    compDates.forEach(function(d){
+      var val=d[m.key]||0;
+      var cPc=todayVal!==0?((val-todayVal)/Math.abs(todayVal)*100):0;
+      // For fees: more negative = more fees = bad
+      var cGd=m.invert?cPc>0:cPc>0;
+      var cCl=Math.abs(cPc)<0.5?'var(--text3)':cGd?'#22c55e':'#ef4444';
+      var cTx=Math.abs(cPc)<0.5?'':'<div style="font-size:8px;color:'+cCl+'">'+(cPc>0?'+':'')+Math.round(cPc)+'%</div>';
+      dh+='<td style="text-align:right;padding:6px 4px;border-bottom:1px solid var(--border);color:var(--text2)">'+m.fmt(val)+cTx+'</td>';
+    });
+    dh+='</tr>';
+  });
+  dh+='</table></div>';
+  el.innerHTML=dh;
+}
+
+function getWeekNum(dateStr){
+  const d=new Date(dateStr+'T12:00:00');
+  const jan1=new Date(d.getFullYear(),0,1);
+  return Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+}
+
+function render(){
+  // Load chart style preference
+  loadCosts();
+  var savedStyle=ck('vb_chart');
+  if(savedStyle)window._chartStyle=savedStyle;
+  try{
+    document.getElementById('csBar').className='tbtn'+(window._chartStyle==='bar'?' on':'');
+    document.getElementById('csLine').className='tbtn'+(window._chartStyle==='line'?' on':'');
+  }catch(e){}
+
+  checkName();
+  Chart.defaults.color=isLight()?'#3d3d3d':'#7a7a8a';
+  setupChartDefaults();
+  Chart.defaults.borderColor=cGrid();
+  Chart.defaults.font.family='IBM Plex Mono,monospace';
+  Chart.defaults.font.size=10;
+  
+  const range=getDateRange();
+  if(!range.length){$('heroSub').textContent='No data for this period';return}
+  
+  const days=range.map(d=>DAILY[d]).filter(Boolean).sort((a,b)=>a.date.localeCompare(b.date));
+  const last=days[days.length-1];
+  
+  // Time of day
+  const hr=new Date().getHours();
+  $('tod').textContent=hr<12?'morning':hr<17?'afternoon':'evening';
+  $('topDate').textContent=shortD(last.date);
+  // Render 7 day buttons in datebar
+  try{
+    var allDates2=Object.keys(DAILY).sort();
+    var last7=allDates2.slice(-7).reverse();
+    var dbar=document.getElementById('datebarDays');
+    if(dbar){
+      dbar.innerHTML='';
+      last7.forEach(function(dt){
+        var btn=document.createElement('button');
+        btn.className='dbtn';
+        if((PERIOD==='today'&&dt===allDates2[allDates2.length-1])||(PERIOD==='day_'+dt))btn.className='dbtn on';
+        btn.textContent=shortD(dt);
+        btn.onclick=function(){PERIOD='day_'+dt;document.querySelectorAll('.dbtn').forEach(function(x){x.classList.remove('on')});btn.classList.add('on');destroyCharts();render()};
+        dbar.appendChild(btn);
+      });
+    }
+  }catch(e){}
+  
+  const totOrd=days.reduce((s,d)=>s+d.totalOrders,0);
+  const totEarn=days.reduce((s,d)=>s+d.totalEarnings,0);
+  const totPay=days.reduce((s,d)=>s+d.totalPayout,0);
+  const totFees=days.reduce((s,d)=>s+d.fees,0);
+  const totCog=days.reduce((s,d)=>s+d.cog,0);
+  const totLabor=days.reduce((s,d)=>s+d.labor,0);
+  const totRent=days.reduce((s,d)=>s+d.rent,0);
+  const totEbitda=days.reduce((s,d)=>s+d.ebitda,0);
+  
+  var heroDateStr=range.length===1?shortD(range[0]):shortD(range[0])+' — '+shortD(range[range.length-1]);
+  $('heroSub').textContent=heroDateStr+' · '+range.length+' day'+(range.length>1?'s':'');
+  $('hOrd').textContent=totOrd;
+  $('hSales').textContent=fmt$(totEarn);
+  $('hPay').textContent=fmt$(totPay);
+  $('hEbitda').textContent=fmtD(totEbitda);
+  $('hEbitda').style.color=totEbitda>=0?'var(--green)':'var(--red)';
+  
+  $('kEarn').textContent=fmt$(totEarn);
+  $('kFees').textContent=fmtD(-totFees);
+  $('kCog').textContent=fmtD(-totCog);
+  $('kLabor').textContent=fmtD(-totLabor);
+  $('kRent').textContent=fmtD(-totRent);
+  $('kAvg').textContent=totOrd?fmt$(totEarn/totOrd):'—';
+  
+  // MTD
+  const lastMo=last.date.slice(0,7);
+  const mtdDays=Object.values(DAILY).filter(d=>d.date.startsWith(lastMo));
+  const mtdEbitda=mtdDays.reduce((s,d)=>s+d.ebitda,0);
+  $('kMtd').textContent=fmtD(mtdEbitda);
+  $('kMtd').className='kpi-v '+(mtdEbitda>=0?'g':'r');
+  
+  // Settings
+  // ═══ SAME DAY OF WEEK COMPARISON ═══
+  {
+    var lastDay=days[days.length-1];
+    var lastDate=new Date(lastDay.date+'T12:00:00');
+    var dow=lastDate.getDay();
+    var dowNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var dowName=dowNames[dow];
+    
+    // Populate base day dropdown with all available dates (most recent first)
+    var baseSel=document.getElementById('dowBaseDay');
+    if(baseSel){
+      var allDatesDesc=Object.keys(DAILY).sort().reverse();
+      baseSel.innerHTML='';
+      allDatesDesc.forEach(function(dt){
+        var opt=document.createElement('option');
+        opt.value=dt;
+        var d2=new Date(dt+'T12:00:00');
+        var dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d2.getDay()];
+        opt.textContent=shortD(dt)+' ('+dn+')';
+        baseSel.appendChild(opt);
+      });
+      baseSel.value=lastDay.date;
+    }
+    
+    // Find ALL same weekdays from all data
+    var allDaysArr=Object.values(DAILY).sort(function(a,b){return b.date.localeCompare(a.date)});
+    var allSameDow=allDaysArr.filter(function(d){
+      return new Date(d.date+'T12:00:00').getDay()===dow;
+    });
+    
+    $('dowCompBadge').textContent=dowName+'s';
+    
+    // Store globally for dynamic selection
+    window._dowDates=allSameDow;
+    window._dowSelected={};
+    // Pre-select only the most recent comparable
+    if(allSameDow.length>1)window._dowSelected[allSameDow[1].date]=true;
+    
+    renderDowPicker();
+    renderDowTable();
+  }
+  
+  $('setStatus').textContent='Connected';$('setStatus').textContent='Connected';
+  
+  $('setStatus').textContent='Connected';
+  $('setRows').textContent=RAW.length+' rows';
+  
+  // ── SALES & EBITDA CHART ──
+  {
+    const labels=days.map(d=>shortD(d.date));
+    const isLine=cStyle()==='line'&&days.length>2;
+    new Chart($('cSalesEbitda'),{type:isLine?'line':'bar',data:{labels,datasets:[
+      {label:'Earnings',data:days.map(d=>d.totalEarnings),
+        backgroundColor:isLine?'rgba(26,58,110,0.08)':'rgba(26,58,110,0.35)',
+        borderColor:'#1a3a6e',borderWidth:isLine?2:1,borderRadius:isLine?0:3,
+        fill:isLine,tension:0.4,pointRadius:isLine?1.5:0,order:2},
+      {label:'EBITDA',data:days.map(d=>d.ebitda),
+        backgroundColor:isLine?'transparent':days.map(d=>d.ebitda>=0?'rgba(194,175,132,0.4)':'rgba(240,96,96,0.4)'),
+        borderColor:isLine?'#2dd4a0':days.map(d=>d.ebitda>=0?'#c2af84':'#c45c5c'),
+        borderWidth:isLine?2:1,borderRadius:isLine?0:3,
+        tension:0.4,pointRadius:isLine?1.5:0,order:1}
+    ]},options:{plugins:{legend:{labels:{boxWidth:7,padding:8,font:{size:9}}},tooltip:{backgroundColor:cTip(),callbacks:{label:ctx=>ctx.dataset.label+': '+fmtD(ctx.parsed.y)}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:7,font:{size:8}}},y:{grid:{color:cGrid()},ticks:{callback:v=>'$'+Math.round(v/1000)+'k'}}}}});
+  }
+  
+  // ── BRAND DONUT ──
+  const brandTotals={};
+  var dateSet5=new Set(days.map(function(d){return d.date}));
+  RAW.forEach(function(r){
+    if(!dateSet5.has(r['Date']))return;
+    var b=r['Brand']||'';if(!b)return;
+    if(!brandTotals[b])brandTotals[b]={orders:0,earnings:0,payout:0};
+    var earn=num(r['Earnings']);
+    var pay=num(r['Total Payout']);
+    var ch=(r['Channel']||'Uber').trim();
+
+    brandTotals[b].orders+=num(r['Total Orders']);
+    brandTotals[b].earnings+=earn;
+    brandTotals[b].payout+=pay;
+  });
+  const sortedBrands=Object.entries(brandTotals).filter(([b,v])=>v.orders>0).sort((a,b)=>b[1].orders-a[1].orders);
+  const bNames=sortedBrands.map(x=>x[0]);
+  const bOrders=sortedBrands.map(x=>x[1].orders);
+  const bTotal=bOrders.reduce((s,v)=>s+v,0);
+  
+  new Chart($('cDonut'),{type:'doughnut',data:{labels:bNames.map(shortName),datasets:[{data:bOrders,backgroundColor:bNames.map((_,i)=>brandColor(i)),borderColor:isLight()?'#fff':'#0e1525',borderWidth:2,hoverOffset:4}]},options:{cutout:'60%',plugins:{legend:{display:false},tooltip:{backgroundColor:cTip(),callbacks:{label:ctx=>ctx.label+': '+ctx.parsed+' ('+(ctx.parsed/bTotal*100).toFixed(0)+'%)'}}}}});
+  $('donutLeg').innerHTML=sortedBrands.map(([b,v],i)=>'<div class="leg-i"><div class="leg-d" style="background:'+brandColor(i)+'"></div><span class="leg-n">'+shortName(b)+'</span><span class="leg-v">'+v.orders+'</span><span class="leg-p">'+(v.orders/bTotal*100).toFixed(0)+'%</span></div>').join('');
+  
+  // ═══ P&L SUMMARY ═══
+  const pnlDays=range.length;
+  var pnlDateStr=pnlDays===1?shortD(days[0].date):shortD(days[0].date)+' — '+shortD(days[days.length-1].date);
+  $('pnlPeriod').textContent=pnlDateStr;
+  
+  // Build brand filter buttons
+  const activeBrands=sortedBrands.map(x=>x[0]);
+  const numBrands=activeBrands.length||1;
+  $('pnlBrandFilter').innerHTML='';
+  const allBtn=document.createElement('button');
+  allBtn.className='dbtn on';
+  allBtn.style.cssText='font-size:10px;padding:4px 10px';
+  allBtn.textContent='All Brands';
+  allBtn.onclick=function(){setPnlBrand('all',this)};
+  $('pnlBrandFilter').appendChild(allBtn);
+  activeBrands.forEach(b=>{
+    const btn=document.createElement('button');
+    btn.className='dbtn';
+    btn.style.cssText='font-size:10px;padding:4px 10px';
+    btn.textContent=shortName(b);
+    btn.onclick=function(){setPnlBrand(b,this)};
+    $('pnlBrandFilter').appendChild(btn);
+  });
+  
+  // Store data globally for brand switching
+  window._pnlData={days,activeBrands,numBrands,range};
+  renderPnl('all');
+  
+  
+  // ── BRAND LINES CHART ──
+  {
+    const top6=sortedBrands.slice(0,6).map(x=>x[0]);
+    new Chart($('cBrandLines'),{type:'line',data:{labels:days.map(d=>shortD(d.date)),datasets:top6.map((b,i)=>({label:shortName(b),data:days.map(d=>(d.brands[b]||{}).orders||0),borderColor:brandColor(i),backgroundColor:'transparent',tension:0.35,pointRadius:1,borderWidth:1.5}))},options:{plugins:{legend:{labels:{boxWidth:7,padding:8,font:{size:9}}},tooltip:{backgroundColor:cTip()}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8}},y:{grid:{color:cGrid()},beginAtZero:true}}}});
+  }
+  
+  // ── BRAND TABLE ──
+  let th='<thead><tr><th style="text-align:left">Brand</th><th>Orders</th><th>Earnings</th><th>Payout</th></tr></thead><tbody>';
+  sortedBrands.forEach(([b,v],i)=>{th+='<tr><td><span class="bdot" style="background:'+brandColor(i)+'"></span>'+shortName(b)+'</td><td>'+v.orders+'</td><td style="color:var(--acc)">'+fmt$(v.earnings)+'</td><td style="color:var(--green)">'+fmtD(v.payout)+'</td></tr>'});
+  th+='</tbody>';$('tblBrands').innerHTML=th;
+  
+  // ── FINANCIALS ──
+  $('fSales').textContent=fmt$(totEarn);
+  $('fPay').textContent=fmt$(totPay);$('fPay').style.color=totPay>=0?'#22c55e':'#ef4444';
+  $('fFees').textContent=fmtD(-totFees);
+  $('fEbitda').textContent=fmtD(totEbitda);$('fEbitda').style.color=totEbitda>=0?'#22c55e':'#ef4444';
+  
+  // EBITDA Trend
+  {
+    new Chart($('cEbitda'),{type:'line',data:{labels:days.map(d=>shortD(d.date)),datasets:[{label:'EBITDA',data:days.map(d=>d.ebitda),borderColor:'#c2af84',backgroundColor:ctx=>{const ch=ctx.chart;const{ctx:c,chartArea}=ch;if(!chartArea)return'transparent';const g=c.createLinearGradient(0,chartArea.top,0,chartArea.bottom);g.addColorStop(0,'rgba(194,175,132,0.15)');g.addColorStop(0.5,'rgba(194,175,132,0.02)');g.addColorStop(1,'rgba(240,96,96,0.05)');return g},fill:true,tension:0.4,pointRadius:1.5,borderWidth:2}]},options:{plugins:{legend:{display:false},tooltip:{backgroundColor:cTip()}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:10}},y:{grid:{color:cGrid()},ticks:{callback:v=>'$'+v}}}}});
+  }
+  
+  // OpEx block
+  const ad=days.length||1;
+  let oh='';
+  oh+='<div class="ms"><span class="ms-l">Total Earnings</span><span class="ms-v" style="color:var(--acc)">'+fmt$(totEarn)+'</span></div>';
+  oh+='<div class="ms"><span class="ms-l">Total Payouts</span><span class="ms-v" style="color:var(--green)">'+fmt$(totPay)+'</span></div>';
+  oh+='<div class="ms"><span class="ms-l">Mkt & Fees</span><span class="ms-v" style="color:var(--warn)">'+fmtD(-totFees)+'</span></div>';
+  oh+='<div class="ms"><span class="ms-l">COG Est. (20%)</span><span class="ms-v" style="color:var(--red)">'+fmtD(-totCog)+'</span></div>';
+  oh+='<div class="ms"><span class="ms-l">Labor ('+ad+' days)</span><span class="ms-v" style="color:var(--red)">'+fmtD(-totLabor)+'</span></div>';
+  oh+='<div class="ms"><span class="ms-l">Rent ('+ad+' days)</span><span class="ms-v" style="color:var(--red)">'+fmtD(-totRent)+'</span></div>';
+  oh+='<div class="ms" style="border-top:2px solid var(--border);padding-top:10px;margin-top:4px"><span class="ms-l" style="font-weight:700">EBITDA Est.</span><span class="ms-v" style="color:'+(totEbitda>=0?'var(--green)':'var(--red)')+';font-weight:700;font-size:13px">'+fmtD(totEbitda)+'</span></div>';
+  oh+='<div class="ms"><span class="ms-l">Avg Order Value</span><span class="ms-v">'+fmt$(totOrd?totEarn/totOrd:0)+'</span></div>';
+  oh+='<div class="ms"><span class="ms-l">Days</span><span class="ms-v">'+ad+'</span></div>';
+  $('opexBlock').innerHTML=oh;
+  
+  // ═══ CHANNEL ANALYSIS ═══
+  {
+    var chTotals={};
+    var CHANNELS=['Uber','DoorDash','Kiosk'];
+    var CH_COLORS={'Uber':'#1a3a6e','DoorDash':'#c45c5c','Kiosk':'#c2af84'};
+    
+    days.forEach(function(d){
+      if(!d.channels)return;
+      Object.entries(d.channels).forEach(function(e){
+        var ch=e[0],v=e[1];
+        if(!chTotals[ch])chTotals[ch]={orders:0,earnings:0,payout:0,fees:0};
+        chTotals[ch].orders+=v.orders;
+        chTotals[ch].earnings+=v.earnings;
+        chTotals[ch].payout+=v.payout;
+        chTotals[ch].fees+=v.fees;
+      });
+    });
+    
+    var allChOrders=Object.values(chTotals).reduce(function(s,v){return s+v.orders},0)||1;
+    var allChEarn=Object.values(chTotals).reduce(function(s,v){return s+v.earnings},0)||1;
+    
+    // Channel KPI cards
+    var ckH='';
+    Object.entries(chTotals).sort(function(a,b){return b[1].orders-a[1].orders}).forEach(function(e){
+      var ch=e[0],v=e[1];
+      var color=CH_COLORS[ch]||'var(--acc)';
+      var pctOrd=(v.orders/allChOrders*100).toFixed(0);
+      ckH+='<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">';
+      ckH+='<div style="font-size:9px;color:var(--text3);font-family:var(--mono);letter-spacing:0.5px;text-transform:uppercase">'+ch+'</div>';
+      ckH+='<div style="font-size:18px;font-weight:700;color:'+color+';margin:4px 0">'+v.orders+'</div>';
+      ckH+='<div style="font-size:9px;color:var(--text3);font-family:var(--mono)">'+pctOrd+'% · '+fmt$(v.earnings)+'</div>';
+      ckH+='<div style="font-size:9px;color:var(--green);font-family:var(--mono);margin-top:2px">Pay: '+fmt$(v.payout)+'</div>';
+      ckH+='</div>';
+    });
+    $('channelKpis').innerHTML=ckH;
+    
+    // Channel Orders donut
+    var chNames=Object.keys(chTotals).sort(function(a,b){return (chTotals[b].orders)-(chTotals[a].orders)});
+    new Chart($('cChannelOrders'),{type:'doughnut',data:{
+      labels:chNames.map(function(ch){return ch}),
+      datasets:[{data:chNames.map(function(ch){return chTotals[ch].orders}),
+        backgroundColor:chNames.map(function(ch){return CH_COLORS[ch]||'#888'}),
+        borderColor:isLight()?'#fff':'#0c1220',borderWidth:2,hoverOffset:3}]
+    },options:{responsive:true,maintainAspectRatio:true,cutout:'52%',plugins:{legend:{display:false},
+      tooltip:{backgroundColor:cTip(),callbacks:{label:function(ctx){return ctx.label+': '+ctx.parsed+' ('+(ctx.parsed/allChOrders*100).toFixed(0)+'%)'}}}}}});
+    
+    // Channel Revenue donut
+    new Chart($('cChannelRevenue'),{type:'doughnut',data:{
+      labels:chNames.map(function(ch){return ch}),
+      datasets:[{data:chNames.map(function(ch){return Math.round(chTotals[ch].earnings)}),
+        backgroundColor:chNames.map(function(ch){return CH_COLORS[ch]||'#888'}),
+        borderColor:isLight()?'#fff':'#0c1220',borderWidth:2,hoverOffset:3}]
+    },options:{responsive:true,maintainAspectRatio:true,cutout:'52%',plugins:{legend:{display:false},
+      tooltip:{backgroundColor:cTip(),callbacks:{label:function(ctx){return ctx.label+': '+fmt$(ctx.parsed)+' ('+(ctx.parsed/allChEarn*100).toFixed(0)+'%)'}}}}}});
+    
+    // Channel Payout donut
+    var allChPay=Object.values(chTotals).reduce(function(s,v){return s+v.payout},0)||1;
+    new Chart($('cChannelPayout'),{type:'doughnut',data:{
+      labels:chNames.map(function(ch){return ch}),
+      datasets:[{data:chNames.map(function(ch){return Math.round(chTotals[ch].payout)}),
+        backgroundColor:chNames.map(function(ch){return CH_COLORS[ch]||'#888'}),
+        borderColor:isLight()?'#fff':'#0c1220',borderWidth:2,hoverOffset:3}]
+    },options:{responsive:true,maintainAspectRatio:true,cutout:'52%',plugins:{legend:{display:false},
+      tooltip:{backgroundColor:cTip(),callbacks:{label:function(ctx){return ctx.label+': '+fmt$(ctx.parsed)+' ('+(ctx.parsed/allChPay*100).toFixed(0)+'%)'}}}}}});
+    
+    // Channel weekly trend
+    var chWeekly={};
+    days.forEach(function(d){
+      var wk=getWeekNum(d.date);
+      if(!chWeekly[wk])chWeekly[wk]={};
+      if(!d.channels)return;
+      Object.entries(d.channels).forEach(function(e){
+        var ch=e[0];
+        if(!chWeekly[wk][ch])chWeekly[wk][ch]=0;
+        chWeekly[wk][ch]+=e[1].orders;
+      });
+    });
+    var chWeeks=Object.keys(chWeekly).sort(function(a,b){return a-b});
+    if(chWeeks.length>=2){
+      new Chart($('cChannelTrend'),{type:'bar',data:{
+        labels:chWeeks.map(function(w){return 'Wk '+w}),
+        datasets:chNames.map(function(ch){return{
+          label:ch,
+          data:chWeeks.map(function(w){return (chWeekly[w]||{})[ch]||0}),
+          backgroundColor:CH_COLORS[ch]||'#888',
+          borderRadius:2,borderSkipped:false
+        }})
+      },options:{plugins:{legend:{position:'bottom',labels:{boxWidth:7,padding:6,font:{size:8}}},tooltip:{backgroundColor:cTip()}},
+        scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:cGrid()},beginAtZero:true}}}});
+    }
+  }
+  
+  
+  // ═══ WEEKLY ORDERS — TOP 4 BRANDS ═══
+  {
+    const weekData={};
+    days.forEach(d=>{
+      const wk=getWeekNum(d.date);
+      if(!weekData[wk])weekData[wk]={total:0,dayCount:0};
+      weekData[wk].total+=d.totalOrders;
+      weekData[wk].dayCount++;
+      Object.entries(d.brands).forEach(([b,v])=>{
+        if(!weekData[wk][b])weekData[wk][b]=0;
+        weekData[wk][b]+=v.orders;
+      });
+    });
+    const weeks=Object.keys(weekData).sort((a,b)=>a-b);
+    const top4=sortedBrands.slice(0,4).map(x=>x[0]);
+    
+    if(weeks.length>=3){
+      const wkLabels=weeks.map(w=>{
+        const d=weekData[w];
+        return 'Wk '+w+(d.dayCount<7?' ('+d.dayCount+'d)':'');
+      });
+      new Chart($('cWeekly'),{type:'bar',data:{
+        labels:wkLabels,
+        datasets:top4.map((b,i)=>({
+          label:shortName(b),
+          data:weeks.map(w=>(weekData[w]||{})[b]||0),
+          backgroundColor:brandColor(i),
+          borderRadius:2,borderSkipped:false
+        }))
+      },options:{plugins:{legend:{position:'bottom',labels:{boxWidth:7,padding:6,font:{size:8}}},tooltip:{backgroundColor:cTip()}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:cGrid()},beginAtZero:true}}}});
+    } else {
+      // Not enough weeks - show total orders bar per brand instead
+      new Chart($('cWeekly'),{type:'bar',data:{
+        labels:sortedBrands.slice(0,6).map(([b])=>shortName(b)),
+        datasets:[{
+          label:'Orders',
+          data:sortedBrands.slice(0,6).map(([b,v])=>v.orders),
+          backgroundColor:sortedBrands.slice(0,6).map((_,i)=>brandColor(i)),
+          borderRadius:4
+        }]
+      },options:{plugins:{legend:{display:false},tooltip:{backgroundColor:cTip()}},scales:{x:{grid:{display:false}},y:{grid:{color:cGrid()},beginAtZero:true}}}});
+    }
+  }
+  
+  // ═══ PAYOUT VS FEES ═══
+  {
+    const brandFees={};
+    days.forEach(d=>{
+      RAW.filter(r=>r['Date']===d.date).forEach(r=>{
+        const b=r['Brand']||'';
+        if(!b)return;
+        if(!brandFees[b])brandFees[b]={payout:0,totalFees:0,earnings:0};
+        brandFees[b].payout+=num(r['Total Payout']);
+        brandFees[b].totalFees+=Math.abs(num(r['Offers on Items']))+Math.abs(num(r['Ad Spends']))+Math.abs(num(r['Uber Fees']));
+        brandFees[b].earnings+=num(r['Earnings']);
+      });
+    });
+    const wfBrands=Object.entries(brandFees).filter(([b,v])=>v.earnings>0).sort((a,b)=>b[1].payout-a[1].payout);
+    
+    new Chart($('cWaterfall'),{type:'bar',data:{
+      labels:wfBrands.map(([b])=>shortName(b)),
+      datasets:[
+        {label:'You Keep',data:wfBrands.map(([b,v])=>v.payout),backgroundColor:'rgba(194,175,132,0.5)',borderColor:'#c2af84',borderWidth:1,borderRadius:3},
+        {label:'Uber Takes',data:wfBrands.map(([b,v])=>v.totalFees),backgroundColor:'rgba(240,96,96,0.35)',borderColor:'#f06060',borderWidth:1,borderRadius:3}
+      ]
+    },options:{indexAxis:'y',plugins:{legend:{labels:{boxWidth:7,padding:8,font:{size:9}}},tooltip:{backgroundColor:cTip(),callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.parsed.x)}}},scales:{x:{stacked:true,grid:{color:cGrid()},ticks:{callback:v=>'$'+v}},y:{stacked:true,grid:{display:false}}}}});
+  }
+  
+  // ═══ FEE BREAKDOWN BY BRAND (STACKED) ═══
+  {
+    const brandFees2={};
+    days.forEach(d=>{
+      RAW.filter(r=>r['Date']===d.date).forEach(r=>{
+        const b=r['Brand']||'';
+        if(!b)return;
+        if(!brandFees2[b])brandFees2[b]={offers:0,ads:0,fees:0};
+        brandFees2[b].offers+=Math.abs(num(r['Offers on Items']));
+        brandFees2[b].ads+=Math.abs(num(r['Ad Spends']));
+        brandFees2[b].fees+=Math.abs(num(r['Uber Fees']));
+      });
+    });
+    const fbBrands=Object.entries(brandFees2).filter(([b,v])=>v.offers+v.ads+v.fees>0).sort((a,b)=>(b[1].offers+b[1].ads+b[1].fees)-(a[1].offers+a[1].ads+a[1].fees));
+    
+    new Chart($('cFeeBreak'),{type:'bar',data:{
+      labels:fbBrands.map(([b])=>shortName(b)),
+      datasets:[
+        {label:'Offers',data:fbBrands.map(([b,v])=>v.offers),backgroundColor:'rgba(194,175,132,0.45)',borderColor:'#c2af84',borderWidth:1,borderRadius:2},
+        {label:'Ad Spend',data:fbBrands.map(([b,v])=>v.ads),backgroundColor:'rgba(196,92,92,0.4)',borderColor:'#c45c5c',borderWidth:1,borderRadius:2},
+        {label:'Uber Fees',data:fbBrands.map(([b,v])=>v.fees),backgroundColor:'rgba(26,58,110,0.35)',borderColor:'#1a3a6e',borderWidth:1,borderRadius:2}
+      ]
+    },options:{indexAxis:'y',plugins:{legend:{labels:{boxWidth:7,padding:8,font:{size:9}}},tooltip:{backgroundColor:cTip(),callbacks:{label:ctx=>ctx.dataset.label+': '+fmt$(ctx.parsed.x)}}},scales:{x:{stacked:true,grid:{color:cGrid()},ticks:{callback:v=>'$'+v}},y:{stacked:true,grid:{display:false}}}}});
+  }
+  
+  // ═══ DAY OF WEEK HEATMAP ═══
+  {
+    const dowNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dowData={};
+    dowNames.forEach(d=>{dowData[d]={orders:0,earnings:0,payout:0,count:0}});
+    days.forEach(d=>{
+      const dow=new Date(d.date+'T12:00:00').getDay();
+      const name=dowNames[dow];
+      dowData[name].orders+=d.totalOrders;
+      dowData[name].earnings+=d.totalEarnings;
+      dowData[name].payout+=d.totalPayout;
+      dowData[name].count++;
+    });
+    
+    const maxOrd=Math.max(...Object.values(dowData).map(d=>d.count?d.orders/d.count:0));
+    const maxEarn=Math.max(...Object.values(dowData).map(d=>d.count?d.earnings/d.count:0));
+    
+    let hm='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-family:var(--mono);font-size:9px">';
+    dowNames.forEach(name=>{
+      const d=dowData[name];
+      const avgOrd=d.count?Math.round(d.orders/d.count):0;
+      const avgEarn=d.count?Math.round(d.earnings/d.count):0;
+      const intensity=maxOrd>0?(d.count?d.orders/d.count/maxOrd:0):0;
+      const bg='rgba(26,58,110,'+(0.05+intensity*0.4).toFixed(2)+')';
+      hm+='<div style="padding:10px 4px;border-radius:8px;background:'+bg+';border:1px solid var(--border)">';
+      hm+='<div style="color:var(--text2);font-weight:600;margin-bottom:6px">'+name+'</div>';
+      hm+='<div style="font-size:16px;font-weight:700;color:var(--acc)">'+avgOrd+'</div>';
+      hm+='<div style="font-size:8px;color:var(--text3);margin-top:2px">orders/day</div>';
+      hm+='<div style="font-size:11px;font-weight:600;color:var(--green);margin-top:6px">'+fmt$(avgEarn)+'</div>';
+      hm+='<div style="font-size:8px;color:var(--text3)">avg sales</div>';
+      hm+='</div>';
+    });
+    hm+='</div>';
+    $('dowHeatmap').innerHTML=hm;
+  }
+  
+  // ═══ BRAND EFFICIENCY ═══
+  {
+    const brandEff={};
+    var dateSet4=new Set(days.map(function(d){return d.date}));
+    RAW.forEach(function(r){
+      if(!dateSet4.has(r['Date']))return;
+      var b=r['Brand']||'';
+      if(!b)return;
+      if(!brandEff[b])brandEff[b]={earnings:0,payout:0};
+      var earn=num(r['Earnings']);
+      var pay=num(r['Total Payout']);
+      var ch=(r['Channel']||'Uber').trim();
+
+      brandEff[b].earnings+=earn;
+      brandEff[b].payout+=pay;
+    });
+    const effData=Object.entries(brandEff)
+      .filter(([b,v])=>v.earnings>100)
+      .map(([b,v])=>({name:b,margin:v.earnings>0?(v.payout/v.earnings*100):0,payout:v.payout,earnings:v.earnings}))
+      .sort((a,b)=>b.margin-a.margin);
+    
+    new Chart($('cEfficiency'),{type:'bar',data:{
+      labels:effData.map(d=>shortName(d.name)),
+      datasets:[{
+        label:'Payout Margin %',
+        data:effData.map(d=>+d.margin.toFixed(1)),
+        backgroundColor:effData.map(d=>d.margin>=50?'rgba(194,175,132,0.4)':d.margin>=30?'rgba(90,122,181,0.3)':'rgba(240,96,96,0.4)'),
+        borderColor:effData.map(d=>d.margin>=50?'#c2af84':d.margin>=30?'#5a7ab5':'#f06060'),
+        borderWidth:1.5,borderRadius:4
+      }]
+    },options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:cTip(),callbacks:{label:ctx=>ctx.parsed.x+'% margin ('+fmt$(effData[ctx.dataIndex].payout)+' / '+fmt$(effData[ctx.dataIndex].earnings)+')'}}},scales:{x:{grid:{color:cGrid()},ticks:{callback:v=>v+'%'},max:100},y:{grid:{display:false}}}}});
+  }
+}
+
+// ═══ START ═══
+async function start(){
+  const ok=await loadData();
+  if(ok){
+    try{render();console.log('Render complete!')}
+    catch(e){console.error('RENDER ERROR:',e.message,'at',e.stack)}
+  }
+}
+start();
+// Auto-refresh every 5 min
+setInterval(async()=>{const ok=await loadData();if(ok){destroyCharts();render()}},300000);
+</script>
+</body>
+</html>
